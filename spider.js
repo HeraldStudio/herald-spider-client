@@ -41,6 +41,11 @@ class Spider {
         this.socket.on('message', (data) => { this.handleData(data) })
         this.socket.on('error', (error) => { console.log(error) })
         this.socket.on('close',() => { console.log('[-]服务器关闭') })
+          this.socket.heartBeat = setInterval(() => {
+          try {
+              this.socket.send('@herald—spider')
+          } catch (e) {}
+          }, config.heartCycle)
       })
     })
 
