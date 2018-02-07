@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="WebServers">
+    <option name="servers">
+      <webServer id="b3596559-fbf3-45df-938a-0535c3a8b7f2" name="boss" url="http://boss.myseu.cn">
+        <fileTransfer host="boss.myseu.cn" port="22" privateKey="$USER_HOME$/.ssh/id_rsa_boss" accessType="SFTP" keyPair="true">
+          <advancedOptions>
+            <advancedOptions dataProtectionLevel="Private" />
+          </advancedOptions>
+          <option name="port" value="22" />
+        </fileTransfer>
+      </webServer>
+    </option>
+  </component>
+</project>
