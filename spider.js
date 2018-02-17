@@ -57,11 +57,13 @@ class Spider {
           console.log(error);
           this.active = false;
           this.connected = false;
+          process.exit(2)
       })
       this.socket.on('close', () => {
           console.log('[-]服务器关闭');
           this.active = false;
           this.connected = false;
+          process.exit(2)
       })
       this.socket.heartBeat = setInterval(() => {
           try {
