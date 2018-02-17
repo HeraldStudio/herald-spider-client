@@ -1,5 +1,6 @@
 {
   "defaultServer":"118.126.82.142",
   "defaultPort":49034,
-  "heartCycle":3000
+  "heartCycle": 3000,
+  "restart": 30
 }
