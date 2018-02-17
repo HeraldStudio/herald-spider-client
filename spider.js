@@ -23,32 +23,52 @@ axiosCookieJarSupport(axios)
  由于学校部分 HTTPS 的上游服务器可能存在证书问题，这里需要关闭 SSL 安全验证。
  */
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
-
+let isDefault = process.argv[2] === '--default'
 class Spider {
   constructor() {
-    console.log('>>>>> Herald-Spider 分布式硬件爬虫客户端 <<<<<')
-    this.active = false
-    input.question(`${chalk.blue('[Input]')} 服务器地址 (${config.defaultServer}) `, (address) => {
-      if (address === '') {
-        address = config.defaultServer
+      console.log('>>>>> Herald-Spider 分布式硬件爬虫客户端 <<<<<')
+      this.active = false
+      this.connected = false
+      if (!isDefault) {
+          input.question(`${chalk.blue('[Input]')} 服务器地址 (${config.defaultServer}) `, (address) => {
+              if (address === '') {
+                  address = config.defaultServer
+              }
+              input.question(`${chalk.blue('[Input]')} 服务器地址 (${config.defaultPort}) `, (port) => {
+                  if (port === '') {
+                      port = config.defaultPort
+                  }
+                  port = parseInt(port)
+                  this.connect(address, port)
+              })
+          })
+      } else {
+          this.connect(config.defaultServer, config.defaultPort)
       }
-      input.question(`${chalk.blue('[Input]')} 服务器地址 (${config.defaultPort}) `, (port) => {
-        if (port === '') {
-          port = config.defaultPort
-        }
-        port = parseInt(port)
-        this.socket = new ws(`ws://${address}:${port}/`);
-        this.socket.on('message', (data) => { this.handleData(data) })
-        this.socket.on('error', (error) => { console.log(error) })
-        this.socket.on('close',() => { console.log('[-]服务器关闭') })
-          this.socket.heartBeat = setInterval(() => {
+
+  }
+
+  connect (address, port) {
+      this.socket = new ws(`ws://${address}:${port}/`);
+      this.socket.on('message', (data) => {
+          this.handleData(data)
+      })
+      this.socket.on('error', (error) => {
+          console.log(error);
+          this.active = false;
+          this.connected = false;
+      })
+      this.socket.on('close', () => {
+          console.log('[-]服务器关闭');
+          this.active = false;
+          this.connected = false;
+      })
+      this.socket.heartBeat = setInterval(() => {
           try {
               this.socket.send('@herald—spider')
-          } catch (e) {}
-          }, config.heartCycle)
-      })
-    })
-
+          } catch (e) {
+          }
+      }, config.heartCycle)
   }
 
   handleData(data){
