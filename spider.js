@@ -90,9 +90,7 @@ class Spider {
                 jar: cookieJar,
                 responseType: 'arraybuffer',
                 transformResponse (res) {
-                    let encoding = chardet.detect(res)
-                    res = new iconv.Iconv(encoding, 'UTF-8//TRANSLIT//IGNORE').convert(res).toString()
-                    return res
+                    return Buffer.from(res) // 将请求返回的结果转换成buffer
                 }
             })
 
