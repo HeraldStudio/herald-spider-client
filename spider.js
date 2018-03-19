@@ -27,8 +27,9 @@ let isDefault = process.argv[2] === '--default'
 class Spider {
     constructor() {
         console.log('>>>>> Herald-Spider 分布式硬件爬虫客户端 <<<<<')
-        this.active = false
-        this.connected = false
+        this.active = false;
+        this.connected = false;
+        this.finalHeartBeat = (new Date).getTime();
         if (!isDefault) {
             input.question(`${chalk.blue('[Input]')} 服务器地址 (${config.defaultServer}) `, (address) => {
                 if (address === '') {
@@ -66,20 +67,37 @@ class Spider {
             process.exit(2)
         })
         this.socket.heartBeat = setInterval(() => {
+            // 检服务器心跳是否正常
+            let currentTime = (new Date).getTime();
+            if (currentTime - this.finalHeartBeat >= 10 * config.heartCycle) {
+                process.exit(3);
+            }
             try {
-                this.socket.send('@herald—spider')
+                this.socket.send('@herald—spider');
             } catch (e) {
             }
         }, config.heartCycle)
     }
 
     handleData(data) {
+        if (data === '@herald-server') {
+            // 来自服务器的心跳拦截
+            this.finalHeartBeat = (new Date).getTime();
+            console.log(`服务器心跳: ${(new Date)}`)
+            return;
+        }
+
         if (this.active) {
-            let request = JSON.parse(data)
+            let request;
+            try {
+                 request = JSON.parse(data);
+            } catch (e) {
+                return
+            }
             if (request.hasOwnProperty('data')) {
                 request.data = Buffer.from(request.data.data).toString()
             }
-            let cookieJar = new tough.CookieJar()
+            let cookieJar = new tough.CookieJar();
             if (request.cookie) {
                 cookieJar = tough.CookieJar.fromJSON(request.cookie)
             } else {
@@ -92,7 +110,7 @@ class Spider {
                 transformResponse (res) {
                     return Buffer.from(res) // 将请求返回的结果转换成buffer
                 }
-            })
+            });
 
             console.log(`${chalk.blue(request.requestName)} ${chalk.bold('-->')} ${chalk.yellow(chalk.bold(request.method.toUpperCase()))} ${request.url}`)
             _axios.request(request).then((response) => {
@@ -119,24 +137,25 @@ class Spider {
                     let preRes = {
                         requestName: request.requestName,
                         succ: false,
-                        status: error.response.status,
-                        statusText: error.response.statusText,
-                        headers: error.response.headers,
-                        message: error.message
-
-                    }
-                    if (error.response.hasOwnProperty('data')) {
-                        preRes.data = Buffer.from(error.response.data)
-                    }
+                    };
+                    // try {
+                    //     preRes.status = error.response.status;
+                    //     preRes.statusText = error.response.statusText;
+                    //     preRes.headers = error.response.headers;
+                    //     preRes.message = error.message;
+                    // } catch (e) {}
+                    // if (error.response.hasOwnProperty('data')) {
+                    //     preRes.data = Buffer.from(error.response.data)
+                    // }
                     this.socket.send(JSON.stringify(preRes))
-                    console.log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red(response.status)} ${response.statusText}`)
+                    console.log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${chalk.red(request.url)}`)
                 } catch (e) {
                     console.log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${e.message}`)
                 }
             })
         } else {
             if (data === 'Auth_Success') {
-                this.active = true
+                this.active = true;
                 console.log(`${chalk.green('[+]')} 认证成功`)
             } else if (data === 'Auth_Fail') {
                 console.log(`${chalk.red('[-]')} 认证失败`)
@@ -145,7 +164,7 @@ class Spider {
             } else {
                 try {
                     let spiderName = JSON.parse(data).spiderName
-                    console.log(`${chalk.green('[+]')} 连接建立成功，spiderName=${spiderName} `)
+                    console.log(`${chalk.green('[+]')} 连接建立成功，spiderName=${spiderName} `);
                     input.question(`${chalk.blue('[Input]')} 登陆口令：`, (answer) => {
                         this.socket.send(JSON.stringify({token: answer}))
                     })
@@ -159,6 +178,6 @@ class Spider {
 
 setTimeout(() => {
     new Spider()
-}, config.restart * 1000)
+}, 0 * 1000)
 
 
