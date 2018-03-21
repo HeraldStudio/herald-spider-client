@@ -69,7 +69,9 @@ class Spider {
         this.socket.heartBeat = setInterval(() => {
             // 检服务器心跳是否正常
             let currentTime = (new Date).getTime();
+            // 执行心跳逻辑
             if (currentTime - this.finalHeartBeat >= 10 * config.heartCycle) {
+                console.error(`爬虫${this.spiderName}由于服务器心跳超时退出`)
                 process.exit(3);
             }
             try {
@@ -158,18 +160,18 @@ class Spider {
                 this.active = true;
                 console.log(`${chalk.green('[+]')} 认证成功`)
             } else if (data === 'Auth_Fail') {
-                console.log(`${chalk.red('[-]')} 认证失败`)
-                process.exit(2)
+                console.error(`${chalk.red('[-]')} 认证失败`)
+                process.exit(1)
 
             } else {
                 try {
-                    let spiderName = JSON.parse(data).spiderName
-                    console.log(`${chalk.green('[+]')} 连接建立成功，spiderName=${spiderName} `);
+                    this.spiderName = JSON.parse(data).spiderName
+                    console.log(`${chalk.green('[+]')} 连接建立成功，spiderName=${this.spiderName} `);
                     input.question(`${chalk.blue('[Input]')} 登陆口令：`, (answer) => {
                         this.socket.send(JSON.stringify({token: answer}))
                     })
                 } catch (e) {
-                    console.log(e)
+                    console.error(e)
                 }
             }
         }
@@ -178,6 +180,6 @@ class Spider {
 
 setTimeout(() => {
     new Spider()
-}, 0 * 1000)
+}, 30 * 1000);
 
 
