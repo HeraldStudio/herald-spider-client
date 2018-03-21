@@ -185,6 +185,6 @@ class Spider {
 
 setTimeout(() => {
     new Spider()
-}, 10 * 1000);
+}, 5 * 1000);
 
 
