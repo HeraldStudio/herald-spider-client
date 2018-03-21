@@ -72,8 +72,8 @@ class Spider {
             let currentTime = (new Date).getTime();
             // 执行心跳逻辑
             if (currentTime - this.finalHeartBeat >= 10 * config.heartCycle) {
-                console.error(`爬虫${this.spiderName}由于服务器心跳超时退出`)
-                process.exit(3);
+                console.log(`爬虫${this.spiderName}由于服务器心跳超时退出`)
+                process.exit(0);
             }
             try {
                 this.socket.send('@herald—spider');
@@ -185,6 +185,6 @@ class Spider {
 
 setTimeout(() => {
     new Spider()
-}, 30 * 1000);
+}, 10 * 1000);
 
 
