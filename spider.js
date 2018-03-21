@@ -15,7 +15,7 @@ const input = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
-const secret = require('secret.json');
+const secret = require('./secret.json');
 axiosCookieJarSupport(axios)
 
 /**
@@ -93,7 +93,7 @@ class Spider {
         if (this.active) {
             let request;
             try {
-                 request = JSON.parse(data);
+                request = JSON.parse(data);
             } catch (e) {
                 return
             }
@@ -171,9 +171,9 @@ class Spider {
                     if (isDefault) {
                         this.socket.send(JSON.stringify({token: secret.token}))
                     } else {
-                    input.question(`${chalk.blue('[Input]')} 登陆口令：`, (answer) => {
-                        this.socket.send(JSON.stringify({token: answer}))
-                    })
+                        input.question(`${chalk.blue('[Input]')} 登陆口令：`, (answer) => {
+                            this.socket.send(JSON.stringify({token: answer}))
+                        })
                     }
                 } catch (e) {
                     console.error(e)
