@@ -11,7 +11,7 @@ messageProcess.stdout.on('data', (chunk) => {
     "use strict";
     let message = chunk.toString();
     message.trim().split('\n').map(message => {
-        console.log(JSON.parse(message).msg);
+        console.log(JSON.parse(Buffer.from(JSON.parse(message).data).toString()).msg);
     })
 });
 

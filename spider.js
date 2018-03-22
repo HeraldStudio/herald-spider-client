@@ -28,7 +28,7 @@ let isDefault = process.argv[2] === '--default'
 
 const log = (msg) => {
     if (config.serverLog) {
-        console.log(JSON.stringify({msg}))
+        console.log(JSON.stringify(Buffer.from(JSON.stringify({msg}))))
     } else {
         console.log(msg)
     }
