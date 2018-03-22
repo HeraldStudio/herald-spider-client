@@ -192,9 +192,9 @@ class Spider {
                     //     preRes.data = Buffer.from(error.response.data)
                     // }
                     this.socket.send(JSON.stringify(preRes))
-                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${chalkColored.red(request.url)} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.red('xxx')} ${chalkColored.red(request.url)} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
                 } catch (e) {
-                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
 
                 }
             })
