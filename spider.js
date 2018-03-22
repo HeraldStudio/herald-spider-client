@@ -25,9 +25,18 @@ axiosCookieJarSupport(axios)
  */
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 let isDefault = process.argv[2] === '--default'
+
+const log = (msg) => {
+    if (config.serverLog) {
+        console.log(JSON.stringify({msg}))
+    } else {
+        console.log(msg)
+    }
+};
+
 class Spider {
     constructor() {
-        console.log('>>>>> Herald-Spider 分布式硬件爬虫客户端 <<<<<')
+        log('>>>>> Herald-Spider 分布式硬件爬虫客户端 <<<<<')
         this.active = false;
         this.connected = false;
         this.finalHeartBeat = (new Date).getTime();
@@ -56,13 +65,13 @@ class Spider {
             this.handleData(data)
         })
         this.socket.on('error', (error) => {
-            console.log(error);
+            log(error.message);
             this.active = false;
             this.connected = false;
             process.exit(2)
         })
         this.socket.on('close', () => {
-            console.log('[-]服务器关闭');
+            log('[-]服务器关闭');
             this.active = false;
             this.connected = false;
             process.exit(2)
@@ -72,7 +81,7 @@ class Spider {
             let currentTime = (new Date).getTime();
             // 执行心跳逻辑
             if (currentTime - this.finalHeartBeat >= 10 * config.heartCycle) {
-                console.log(`爬虫${this.spiderName}由于服务器心跳超时退出`)
+                log(`爬虫${this.spiderName}由于服务器心跳超时退出`)
                 process.exit(0);
             }
             try {
@@ -86,7 +95,7 @@ class Spider {
         if (data === '@herald-server') {
             // 来自服务器的心跳拦截
             this.finalHeartBeat = (new Date).getTime();
-            console.log(`服务器心跳: ${(new Date)}`)
+            log(`服务器心跳: ${(new Date)}`)
             return;
         }
 
@@ -115,7 +124,8 @@ class Spider {
                 }
             });
 
-            console.log(`${chalk.blue(request.requestName)} ${chalk.bold('-->')} ${chalk.yellow(chalk.bold(request.method.toUpperCase()))} ${request.url}`)
+            log(`${chalk.blue(request.requestName)} ${chalk.bold('-->')} ${chalk.yellow(chalk.bold(request.method.toUpperCase()))} ${request.url}`);
+
             _axios.request(request).then((response) => {
                 //处理响应结果
                 try {
@@ -129,10 +139,13 @@ class Spider {
                         cookie: cookieJar.toJSON()
                     }
                     this.socket.send(JSON.stringify(preRes))
-                    console.log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.green(response.status)} ${response.statusText}`)
+
+                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.green(response.status)} ${response.statusText}`)
 
                 } catch (e) {
-                    console.log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${e.message}`)
+
+                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${e.message}`)
+
                 }
 
             }).catch((error) => {
@@ -151,23 +164,24 @@ class Spider {
                     //     preRes.data = Buffer.from(error.response.data)
                     // }
                     this.socket.send(JSON.stringify(preRes))
-                    console.log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${chalk.red(request.url)}`)
+                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${chalk.red(request.url)}`)
                 } catch (e) {
-                    console.log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${e.message}`)
+                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${e.message}`)
+
                 }
             })
         } else {
             if (data === 'Auth_Success') {
                 this.active = true;
-                console.log(`${chalk.green('[+]')} 认证成功`)
+                log(`${chalk.green('[+]')} 认证成功`)
             } else if (data === 'Auth_Fail') {
-                console.error(`${chalk.red('[-]')} 认证失败`)
+                log(`${chalk.red('[-]')} 认证失败`)
                 process.exit(1)
 
             } else {
                 try {
                     this.spiderName = JSON.parse(data).spiderName
-                    console.log(`${chalk.green('[+]')} 连接建立成功，spiderName=${this.spiderName} `);
+                    log(`${chalk.green('[+]')} 连接建立成功，spiderName=${this.spiderName} `);
                     if (isDefault) {
                         this.socket.send(JSON.stringify({token: secret.token}))
                     } else {
