@@ -56,7 +56,35 @@ class Spider {
         } else {
             this.connect(config.defaultServer, config.defaultPort)
         }
+        this.statusQueue = [];
+        this.succCounter = 0
+    }
 
+    succStatus(){
+        this.statusQueue.push(true);
+        if (this.statusQueue.length < config.statusLength) {
+            this.succCounter++
+            return (this.succCounter / this.statusQueue.length * 100).toPrecision(3);
+        } else {
+            let out = this.statusQueue.shift();
+            if (!out) {
+                this.succCounter++
+            }
+            return (this.succCounter / config.statusLength * 100).toPrecision(3);
+        }
+    }
+
+    failStatus(){
+        this.statusQueue.push(false);
+        if (this.statusQueue.length < config.statusLength) {
+            return (this.succCounter / this.statusQueue.length * 100).toPrecision(3);
+        } else {
+            let out = this.statusQueue.shift();
+            if (out) {
+                this.succCounter--
+            }
+            return (this.succCounter / config.statusLength * 100).toPrecision(3);
+        }
     }
 
     connect(address, port) {
@@ -95,7 +123,7 @@ class Spider {
         if (data === '@herald-server') {
             // 来自服务器的心跳拦截
             this.finalHeartBeat = (new Date).getTime();
-            log(`服务器心跳: ${(new Date)}`)
+            //log(chalkColored.gray(`❤️服务器心跳: ${(new Date)}`));
             return;
         }
 
@@ -124,7 +152,7 @@ class Spider {
                 }
             });
 
-            log(`${chalkColored.blue(request.requestName)} ${chalkColored.bold('-->')} ${chalkColored.yellow(chalkColored.bold(request.method.toUpperCase()))} ${request.url}`);
+            log(`${chalkColored.bold('-->')} ${chalkColored.cyan(request.requestName)} ${chalkColored.yellow(chalkColored.bold(request.method.toUpperCase()))} ${request.url}`);
 
             _axios.request(request).then((response) => {
                 //处理响应结果
@@ -140,11 +168,11 @@ class Spider {
                     }
                     this.socket.send(JSON.stringify(preRes))
 
-                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.green(response.status)} ${response.statusText}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.green(response.status)} ${response.statusText} ${chalkColored.magenta(`succ:${this.succStatus()}`)}`)
 
                 } catch (e) {
 
-                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${e.message}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)}`)
 
                 }
 
@@ -164,9 +192,9 @@ class Spider {
                     //     preRes.data = Buffer.from(error.response.data)
                     // }
                     this.socket.send(JSON.stringify(preRes))
-                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${chalkColored.red(request.url)}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${chalkColored.red(request.url)} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
                 } catch (e) {
-                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${e.message}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
 
                 }
             })

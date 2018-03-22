@@ -3,5 +3,6 @@
   "defaultPort":49034,
   "heartCycle": 3000,
   "restart": 30,
-  "serverLog": false
+  "serverLog": false,
+  "statusLength": 100
 }
