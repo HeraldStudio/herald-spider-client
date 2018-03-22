@@ -25,7 +25,7 @@ axiosCookieJarSupport(axios)
  */
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
 let isDefault = process.argv[2] === '--default'
-
+const chalkColored = new chalk.constructor({level: 2});
 const log = (msg) => {
     if (config.serverLog) {
         console.log(JSON.stringify(Buffer.from(JSON.stringify({msg}))))
@@ -41,11 +41,11 @@ class Spider {
         this.connected = false;
         this.finalHeartBeat = (new Date).getTime();
         if (!isDefault) {
-            input.question(`${chalk.blue('[Input]')} 服务器地址 (${config.defaultServer}) `, (address) => {
+            input.question(`${chalkColored.blue('[Input]')} 服务器地址 (${config.defaultServer}) `, (address) => {
                 if (address === '') {
                     address = config.defaultServer
                 }
-                input.question(`${chalk.blue('[Input]')} 服务器地址 (${config.defaultPort}) `, (port) => {
+                input.question(`${chalkColored.blue('[Input]')} 服务器地址 (${config.defaultPort}) `, (port) => {
                     if (port === '') {
                         port = config.defaultPort
                     }
@@ -124,7 +124,7 @@ class Spider {
                 }
             });
 
-            log(`${chalk.blue(request.requestName)} ${chalk.bold('-->')} ${chalk.yellow(chalk.bold(request.method.toUpperCase()))} ${request.url}`);
+            log(`${chalkColored.blue(request.requestName)} ${chalkColored.bold('-->')} ${chalkColored.yellow(chalkColored.bold(request.method.toUpperCase()))} ${request.url}`);
 
             _axios.request(request).then((response) => {
                 //处理响应结果
@@ -140,11 +140,11 @@ class Spider {
                     }
                     this.socket.send(JSON.stringify(preRes))
 
-                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.green(response.status)} ${response.statusText}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.green(response.status)} ${response.statusText}`)
 
                 } catch (e) {
 
-                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${e.message}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${e.message}`)
 
                 }
 
@@ -164,28 +164,28 @@ class Spider {
                     //     preRes.data = Buffer.from(error.response.data)
                     // }
                     this.socket.send(JSON.stringify(preRes))
-                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${chalk.red(request.url)}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${chalkColored.red(request.url)}`)
                 } catch (e) {
-                    log(`${chalk.bold('<--')} ${chalk.blue(request.requestName)} ${chalk.red('xxx')} ${e.message}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.blue(request.requestName)} ${chalkColored.red('xxx')} ${e.message}`)
 
                 }
             })
         } else {
             if (data === 'Auth_Success') {
                 this.active = true;
-                log(`${chalk.green('[+]')} 认证成功`)
+                log(`${chalkColored.green('[+]')} 认证成功`)
             } else if (data === 'Auth_Fail') {
-                log(`${chalk.red('[-]')} 认证失败`)
+                log(`${chalkColored.red('[-]')} 认证失败`)
                 process.exit(1)
 
             } else {
                 try {
                     this.spiderName = JSON.parse(data).spiderName
-                    log(`${chalk.green('[+]')} 连接建立成功，spiderName=${this.spiderName} `);
+                    log(`${chalkColored.green('[+]')} 连接建立成功，spiderName=${this.spiderName} `);
                     if (isDefault) {
                         this.socket.send(JSON.stringify({token: secret.token}))
                     } else {
-                        input.question(`${chalk.blue('[Input]')} 登陆口令：`, (answer) => {
+                        input.question(`${chalkColored.blue('[Input]')} 登陆口令：`, (answer) => {
                             this.socket.send(JSON.stringify({token: answer}))
                         })
                     }
