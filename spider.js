@@ -1,23 +1,29 @@
 /**
  * Created by WolfTungsten on 2018/2/5.
  */
-const net = require('net')
 const ws = require('ws')
 const axios = require('axios')
 const readline = require('readline');
 const tough = require('tough-cookie');
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
-const chardet = require('chardet')
-const iconv = require('iconv')
 const config = require('./config.json')
 const chalk = require('chalk')
 const input = readline.createInterface({
     input: process.stdin,
     output: process.stdout
 });
-const secret = require('./secret.json');
 axiosCookieJarSupport(axios)
+const program = require('commander');
 
+program
+  .version('1.0.0')
+  .option('-m --manual', '手动连接')
+  .option('-s --server <server>', '服务器地址')
+  .option('-p, --port <port>', '端口号',parseInt)
+  .option('-k --keyFile <keyFile>', '密钥文件')
+  .parse(process.argv);
+
+const secret = require(program.keyFile);
 /**
  ## 安全性
 
@@ -40,7 +46,7 @@ class Spider {
         this.active = false;
         this.connected = false;
         this.finalHeartBeat = (new Date).getTime();
-        if (!isDefault) {
+        if (program.manual) {
             input.question(`${chalkColored.blue('[Input]')} 服务器地址 (${config.defaultServer}) `, (address) => {
                 if (address === '') {
                     address = config.defaultServer
@@ -54,7 +60,7 @@ class Spider {
                 })
             })
         } else {
-            this.connect(config.defaultServer, config.defaultPort)
+            this.connect(program.server, program.port)
         }
         this.statusQueue = [];
         this.succCounter = 0
@@ -210,7 +216,7 @@ class Spider {
                 try {
                     this.spiderName = JSON.parse(data).spiderName
                     log(`${chalkColored.green('[+]')} 连接建立成功，spiderName=${this.spiderName} `);
-                    if (isDefault) {
+                    if (!program.manual) {
                         this.socket.send(JSON.stringify({token: secret.token}))
                     } else {
                         input.question(`${chalkColored.blue('[Input]')} 登陆口令：`, (answer) => {
