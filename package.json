@@ -11,6 +11,7 @@
     "chalk": "^2.3.0",
     "chardet": "^0.4.2",
     "commander": "^2.19.0",
+    "moment": "^2.24.0",
     "tough-cookie": "^2.3.3",
     "ws": "^4.0.0"
   }

@@ -1,6 +1,6 @@
 {
-  "defaultServer":"118.126.82.142",
-  "defaultPort":49034,
+  "defaultServer":"127.0.0.1",
+  "defaultPort":4000,
   "heartCycle": 3000,
   "restart": 30,
   "serverLog": false,

@@ -3,3 +3,5 @@ yarn.lock
 node_modules/
 .idea/
 secret.json
+pm2-spider.json
+working-log
