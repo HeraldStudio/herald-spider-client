@@ -164,7 +164,7 @@ class Spider {
                 }
             });
 
-            log(`${chalkColored.bold('-->')} ${chalkColored.cyan(request.requestName)} ${chalkColored.yellow(chalkColored.bold(request.method.toUpperCase()))} ${request.url}`);
+            log(`${chalkColored.bold('-->')} ${chalkColored.cyan(request.requestName)} ${chalkColored.blue(moment().format('YYYY-MM-DD HH:mm:ss'))} ${chalkColored.yellow(chalkColored.bold(request.method.toUpperCase()))} ${request.url}`);
 
             _axios.request(request).then((response) => {
                 //处理响应结果
@@ -180,11 +180,11 @@ class Spider {
                     }
                     this.socket.send(JSON.stringify(preRes))
 
-                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.green(response.status)} ${response.statusText} ${chalkColored.magenta(`succ:${this.succStatus()}`)}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.blue(moment().format('YYYY-MM-DD HH:mm:ss'))} ${chalkColored.green(response.status)} ${response.statusText} ${chalkColored.magenta(`succ:${this.succStatus()}`)}`)
 
                 } catch (e) {
 
-                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)}`)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.blue(moment().format('YYYY-MM-DD HH:mm:ss'))} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)}`)
 
                 }
 
@@ -195,9 +195,9 @@ class Spider {
                         succ: false,
                     };
                     this.socket.send(JSON.stringify(preRes))
-                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.red('xxx')} ${chalkColored.red(request.url)} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.blue(moment().format('YYYY-MM-DD HH:mm:ss'))} ${chalkColored.red('xxx')} ${chalkColored.red(request.url)} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
                 } catch (e) {
-                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
+                    log(`${chalkColored.bold('<--')} ${chalkColored.cyan(request.requestName)} ${chalkColored.blue(moment().format('YYYY-MM-DD HH:mm:ss'))} ${chalkColored.red('xxx')} ${e.message} ${chalkColored.magenta(`succ:${this.failStatus()}`)} `)
 
                 }
             })
