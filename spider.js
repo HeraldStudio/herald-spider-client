@@ -4,12 +4,10 @@
 const ws = require('ws')
 const moment = require('moment')
 const axios = require('axios')
-const readline = require('readline');
 const tough = require('tough-cookie');
 const axiosCookieJarSupport = require('axios-cookiejar-support').default
 
 // config.json 中仅有小部分的配置有效
-const config = require('./config.json')
 const chalk = require('chalk')
 const crypto = require('crypto')
 
@@ -21,7 +19,12 @@ program
   .option('-s --server <server>', '服务器地址')
   .option('-p, --port <port>', '端口号',parseInt)
   .option('-k --keyFile <keyFile>', '密钥文件')
+  .option('-h --heartCycle <heartCycle>', '心跳时间')
+  .option('-l --statusLength <statusLength>', '状态长度')
   .parse(process.argv);
+
+program.heartCycle = +program.heartCycle
+program.statusLength = +program.statusLength
 
 const spiderCommonConfig = (() => {
     try {
@@ -43,11 +46,7 @@ const chalkColored = new chalk.constructor({level: 2});
 
 // 自定义一个console.log
 const log = (msg) => {
-    if (config.serverLog) {
-        console.log(JSON.stringify(Buffer.from(JSON.stringify({msg}))))
-    } else {
-        console.log(msg)
-    }
+   console.log(msg)
 };
 
 // 爬虫 token 解密
@@ -76,7 +75,7 @@ class Spider {
 
     succStatus(){
         this.statusQueue.push(true);
-        if (this.statusQueue.length < config.statusLength) {
+        if (this.statusQueue.length < program.statusLength) {
             this.succCounter++
             return (this.succCounter / this.statusQueue.length * 100).toPrecision(3);
         } else {
@@ -84,20 +83,20 @@ class Spider {
             if (!out) {
                 this.succCounter++
             }
-            return (this.succCounter / config.statusLength * 100).toPrecision(3);
+            return (this.succCounter / program.statusLength * 100).toPrecision(3);
         }
     }
 
     failStatus(){
         this.statusQueue.push(false);
-        if (this.statusQueue.length < config.statusLength) {
+        if (this.statusQueue.length < program.statusLength) {
             return (this.succCounter / this.statusQueue.length * 100).toPrecision(3);
         } else {
             let out = this.statusQueue.shift();
             if (out) {
                 this.succCounter--
             }
-            return (this.succCounter / config.statusLength * 100).toPrecision(3);
+            return (this.succCounter / program.statusLength * 100).toPrecision(3);
         }
     }
 
@@ -122,7 +121,7 @@ class Spider {
             // 检服务器心跳是否正常
             let currentTime = +moment();
             // 执行心跳逻辑
-            if (currentTime - this.finalHeartBeat >= 10 * config.heartCycle) {
+            if (currentTime - this.finalHeartBeat >= 10 * program.heartCycle) {
                 log(`爬虫${this.spiderName}由于服务器心跳超时退出`)
                 process.exit(0);
             }
@@ -130,7 +129,7 @@ class Spider {
                 this.socket.send('@herald—spider');
             } catch (e) {
             }
-        }, config.heartCycle)
+        }, program.heartCycle)
     }
 
     handleData(data) {

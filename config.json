@@ -1,8 +1,0 @@
-{
-  "defaultServer":"127.0.0.1",
-  "defaultPort":4000,
-  "heartCycle": 3000,
-  "restart": 30,
-  "serverLog": false,
-  "statusLength": 100
-}
