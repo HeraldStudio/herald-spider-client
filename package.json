@@ -6,7 +6,7 @@
   "author": "狼剩子",
   "license": "MIT",
   "dependencies": {
-    "axios": "^0.17.1",
+    "axios": "^0.18.1",
     "axios-cookiejar-support": "^0.3.2",
     "chalk": "^2.3.0",
     "chardet": "^0.4.2",
